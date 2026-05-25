@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="300.0" prefWidth="350.0" spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.damdi.alberto.chatdam_cliente.controller.LoginController">
+    <padding>
+        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+    </padding>
+
+    <Label text="Chat Corporativo" textAlignment="CENTER">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+
+    <TextField fx:id="txtUsuario" promptText="Nombre de usuario" />
+
+    <PasswordField fx:id="txtPassword" promptText="Contraseña" />
+
+    <Button defaultButton="true" maxWidth="Infinity" mnemonicParsing="false" onAction="#iniciarSesion" text="Iniciar Sesión" />
+
+    <Button cancelButton="true" maxWidth="Infinity" mnemonicParsing="false" onAction="#salirApp" text="Salir" />
+
+</VBox>
