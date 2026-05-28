@@ -1,14 +1,19 @@
 package es.damdi.alberto.chatdam_cliente.controller;
 
 import es.damdi.alberto.chatdam_cliente.model.LoginRequest;
+import es.damdi.alberto.chatdam_cliente.model.Usuario;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import com.google.gson.Gson;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -62,10 +67,34 @@ public class LoginController {
 
     private void procesarRespuesta(HttpResponse<String> response) {
         if (response.statusCode() == 200) {
-            System.out.println("Login exitoso. Respuesta del servidor: " + response.body());
-            // TODO: Aquí añadiremos el código para cargar y mostrar la ventana del Chat Principal
+            // Mapeamos el JSON del servidor a nuestro objeto Usuario
+            Usuario usuarioLogueado = gson.fromJson(response.body(), Usuario.class);
+            // Ejecutamos el cambio de pantalla
+            abrirVentanaChat(usuarioLogueado);
         } else {
             mostrarAlerta("Acceso Denegado", "Credenciales incorrectas. Vuelve a intentarlo.");
+        }
+    }
+
+    private void abrirVentanaChat(Usuario usuario) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/Chat.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            // Le pasamos el usuario al nuevo controlador
+            ChatController chatController = loader.getController();
+            chatController.setUsuarioLogueado(usuario);
+
+            // Obtenemos la ventana actual y le cambiamos la escena
+            Stage stage = (Stage) txtUsuario.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Chat Corporativo - " + usuario.getUsername());
+            stage.setResizable(true); // El chat sí se puede redimensionar
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error Fatal", "No se pudo cargar la ventana del chat.");
         }
     }
 

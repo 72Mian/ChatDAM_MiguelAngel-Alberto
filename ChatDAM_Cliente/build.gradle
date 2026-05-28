@@ -14,6 +14,14 @@ repositories {
 dependencies {
     // Librería para mapear objetos a JSON en las peticiones HTTP
     implementation 'com.google.code.gson:gson:2.10.1'
+    // Librerías para WebSockets y STOMP en el cliente
+    implementation 'org.springframework:spring-websocket:6.1.6'
+    implementation 'org.springframework:spring-messaging:6.1.6'
+    // Motor interno de WebSockets
+    implementation 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.20'
+    // Jackson para convertir automáticamente las fechas (LocalDate/LocalTime) de los mensajes
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0'
 }
 
 javafx {
