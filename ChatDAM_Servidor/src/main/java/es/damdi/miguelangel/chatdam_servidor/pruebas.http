@@ -1,0 +1,8 @@
+### Crear mi usuario Administrador
+POST http://localhost:8080/api/auth/registro
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "1234"
+}
