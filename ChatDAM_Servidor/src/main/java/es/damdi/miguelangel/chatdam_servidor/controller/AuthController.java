@@ -1,0 +1,46 @@
+package es.damdi.miguelangel.chatdam_servidor.controller;
+
+
+import es.damdi.miguelangel.chatdam_servidor.dto.LoginRequest;
+import es.damdi.miguelangel.chatdam_servidor.model.Usuario;
+import es.damdi.miguelangel.chatdam_servidor.service.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        Optional<Usuario> usuario = usuarioService.validarLogin(request.getUsername(), request.getPassword());
+
+        if (usuario.isPresent()) {
+            return ResponseEntity.ok(usuario.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
+        }
+    }
+    @PostMapping("/registro")
+    public ResponseEntity<?> registrarAdmin(@RequestBody Usuario nuevoUsuario) {
+        try {
+            // Forzamos que este primer usuario sea ADMINISTRADOR
+            nuevoUsuario.setRol(es.damdi.miguelangel.chatdam_servidor.model.Rol.ADMINISTRADOR);
+
+            // El servicio encriptará la clave y lo guardará en AWS
+            Usuario usuarioGuardado = usuarioService.registrarUsuario(nuevoUsuario);
+
+            return ResponseEntity.ok(usuarioGuardado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al registrar: Probablemente el usuario ya existe");
+        }
+    }
+}
