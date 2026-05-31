@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "usuarios")
-@Data // Genera automáticamente getters, setters, toString y constructores gracias a Lombok
+@Data
 public class Usuario {
 
     @Id
@@ -15,7 +15,7 @@ public class Usuario {
     private String username;
 
     @Column(nullable = false)
-    private String password; // Recuerda que se guardará cifrada
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -23,7 +23,7 @@ public class Mensaje {
     @Column(nullable = false)
     private LocalTime hora;
 
-    @ManyToOne // Muchos mensajes pueden pertenecer a un mismo usuario
+    @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario autor;
 }

@@ -17,38 +17,34 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Método para validar el login
     public Optional<Usuario> validarLogin(String username, String passwordPlana) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
 
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            // Comparamos la contraseña plana que llega de JavaFX con la cifrada de la BD
             if (passwordEncoder.matches(passwordPlana, usuario.getPassword())) {
                 return Optional.of(usuario);
             }
         }
-        return Optional.empty(); // Login incorrecto
+        return Optional.empty();
     }
 
-    // Método para que el Administrador registre nuevos empleados (cifrando la clave)
     public Usuario registrarUsuario(Usuario nuevoUsuario) {
-        // Ciframos la contraseña antes de guardarla
+
         String passwordCifrada = passwordEncoder.encode(nuevoUsuario.getPassword());
         nuevoUsuario.setPassword(passwordCifrada);
 
         return usuarioRepository.save(nuevoUsuario);
     }
 
-    // Método para eliminar un usuario por su nombre
     public boolean eliminarUsuarioPorUsername(String username) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
 
         if (usuarioOpt.isPresent()) {
             usuarioRepository.delete(usuarioOpt.get());
-            return true; // Se eliminó correctamente
+            return true;
         }
-        return false; // No se encontró el usuario
+        return false;
     }
 
     public java.util.List<Usuario> obtenerTodosLosUsuarios() {

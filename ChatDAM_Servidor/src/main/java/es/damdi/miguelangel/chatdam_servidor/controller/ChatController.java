@@ -24,12 +24,10 @@ public class ChatController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Cuando un empleado envíe algo a "/app/enviar-mensaje", Spring Boot ejecutará este método
     @MessageMapping("/enviar-mensaje")
-    @SendTo("/topic/mensajes") // Y lo que devuelva este método, se enviará a TODOS los suscritos a este canal
+    @SendTo("/topic/mensajes")
     public Mensaje recibirYDifundirMensaje(@Payload Mensaje mensajeRecibido) {
 
-        // 1. Buscamos al autor original en AWS para asegurarnos de que existe
         Optional<Usuario> autor = usuarioRepository.findById(mensajeRecibido.getAutor().getId());
 
         if (autor.isPresent()) {
@@ -37,10 +35,8 @@ public class ChatController {
             mensajeRecibido.setFecha(LocalDate.now());
             mensajeRecibido.setHora(LocalTime.now());
 
-            // 2. Guardamos el mensaje en la base de datos de AWS
             mensajeRepository.save(mensajeRecibido);
 
-            // 3. Se lo "escupimos" a todos los usuarios conectados al instante
             return mensajeRecibido;
         }
 

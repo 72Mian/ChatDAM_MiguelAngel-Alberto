@@ -14,7 +14,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // El estándar de la industria para cifrar contraseñas
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

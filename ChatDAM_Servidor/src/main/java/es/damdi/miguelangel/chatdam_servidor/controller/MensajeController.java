@@ -24,14 +24,12 @@ public class MensajeController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Método GET para recuperar los últimos 10 mensajes (Requisito obligatorio)
     @GetMapping("/historial")
     public ResponseEntity<List<Mensaje>> obtenerUltimosMensajes() {
         List<Mensaje> ultimosMensajes = mensajeRepository.findTop10ByOrderByFechaDescHoraDesc();
         return ResponseEntity.ok(ultimosMensajes);
     }
 
-    // Método POST para que un empleado envíe un mensaje nuevo
     @PostMapping("/enviar")
     public ResponseEntity<?> enviarMensaje(@RequestParam Long idUsuario, @RequestBody String contenido) {
 
@@ -41,14 +39,12 @@ public class MensajeController {
             return ResponseEntity.badRequest().body("Error: El usuario no existe");
         }
 
-        // Construimos el mensaje basado en el modelo relacional (AD03)
         Mensaje nuevoMensaje = new Mensaje();
         nuevoMensaje.setContenido(contenido);
         nuevoMensaje.setFecha(LocalDate.now());
         nuevoMensaje.setHora(LocalTime.now());
         nuevoMensaje.setAutor(autorOpt.get());
 
-        // Lo guardamos en la base de datos
         mensajeRepository.save(nuevoMensaje);
 
         return ResponseEntity.ok(nuevoMensaje);
