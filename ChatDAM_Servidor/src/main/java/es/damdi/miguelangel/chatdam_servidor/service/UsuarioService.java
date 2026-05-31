@@ -39,4 +39,19 @@ public class UsuarioService {
 
         return usuarioRepository.save(nuevoUsuario);
     }
+
+    // Método para eliminar un usuario por su nombre
+    public boolean eliminarUsuarioPorUsername(String username) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+
+        if (usuarioOpt.isPresent()) {
+            usuarioRepository.delete(usuarioOpt.get());
+            return true; // Se eliminó correctamente
+        }
+        return false; // No se encontró el usuario
+    }
+
+    public java.util.List<Usuario> obtenerTodosLosUsuarios() {
+        return usuarioRepository.findAll();
+    }
 }
