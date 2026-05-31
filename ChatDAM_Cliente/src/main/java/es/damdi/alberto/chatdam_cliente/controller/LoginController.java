@@ -28,7 +28,7 @@ public class LoginController {
     @FXML
     private PasswordField txtPassword;
 
-    private static final String SERVER_URL = "http://localhost:8080/api/auth/login";
+    private static final String SERVER_URL = "http://54.242.82.149:8080/api/auth/login";
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))

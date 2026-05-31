@@ -33,7 +33,7 @@ public class BajaEmpleadoController {
         this.usuarioLogueado = usernameActual;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/api/auth/usuarios"))
+                .uri(URI.create("http://54.242.82.149:8080/api/auth/usuarios"))
                 .GET()
                 .build();
 
@@ -80,7 +80,7 @@ public class BajaEmpleadoController {
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/api/auth/eliminar/" + username))
+                .uri(URI.create("http://54.242.82.149:8080/api/auth/eliminar/" + username))
                 .DELETE()
                 .build();
 

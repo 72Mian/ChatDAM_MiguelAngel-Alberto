@@ -45,7 +45,7 @@ public class AltaEmpleadoController {
         String jsonBody = String.format("{\"username\":\"%s\", \"password\":\"%s\", \"rol\":\"%s\"}", username, password, rol);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/api/auth/registro"))
+                .uri(URI.create("http://54.242.82.149:8080/api/auth/registro"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();

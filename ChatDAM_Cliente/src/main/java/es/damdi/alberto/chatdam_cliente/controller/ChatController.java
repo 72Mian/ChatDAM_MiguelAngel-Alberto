@@ -42,8 +42,8 @@ public class ChatController {
     private Usuario usuarioLogueado;
     private org.springframework.messaging.simp.stomp.StompSession stompSession;
 
-    private static final String HISTORIAL_URL = "http://localhost:8080/api/mensajes/historial";
-    private static final String WS_URL = "ws://localhost:8080/ws-chat/websocket";
+    private static final String HISTORIAL_URL = "http://54.242.82.149:8080/api/mensajes/historial";
+    private static final String WS_URL = "ws://54.242.82.149:8080/ws-chat/websocket";
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     @FXML
