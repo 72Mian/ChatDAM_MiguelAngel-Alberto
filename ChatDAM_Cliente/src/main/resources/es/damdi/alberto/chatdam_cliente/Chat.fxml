@@ -15,12 +15,16 @@
 
     <top>
         <MenuBar BorderPane.alignment="CENTER">
+            <Menu fx:id="menuGestion" mnemonicParsing="false" text="Gestión">
+                <MenuItem fx:id="menuAltaEmpleado" mnemonicParsing="false" onAction="#abrirAltaEmpleado" text="Alta de Empleado" />
+                <MenuItem fx:id="menuBajaEmpleado" mnemonicParsing="false" onAction="#abrirBajaEmpleado" text="Baja de Empleado" />
+            </Menu>
             <Menu mnemonicParsing="false" text="Opciones">
+                <MenuItem mnemonicParsing="false" onAction="#cerrarSesion" text="Cerrar Sesión" />
                 <MenuItem mnemonicParsing="false" onAction="#salirApp" text="Salir" />
             </Menu>
         </MenuBar>
     </top>
-
     <center>
         <TextArea fx:id="areaMensajes" editable="false" wrapText="true" BorderPane.alignment="CENTER">
             <BorderPane.margin>
