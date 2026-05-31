@@ -23,7 +23,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/ws-chat/**").permitAll() // <-- ¡NUEVA LÍNEA PARA EL TÚNEL!
+                        .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/api/mensajes/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
