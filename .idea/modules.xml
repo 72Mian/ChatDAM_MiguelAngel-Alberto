@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChatDAM_Servidor.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ChatDAM_Servidor.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChatDAM_Servidor.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ChatDAM_Servidor.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/ProyectoChat.iml" filepath="$PROJECT_DIR$/.idea/ProyectoChat.iml" />
     </modules>
   </component>

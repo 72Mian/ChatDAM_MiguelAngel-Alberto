@@ -5,12 +5,13 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 <BorderPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.damdi.alberto.chatdam_cliente.controller.ChatController">
 
     <top>
@@ -25,21 +26,24 @@
             </Menu>
         </MenuBar>
     </top>
+
     <center>
-        <TextArea fx:id="areaMensajes" editable="false" wrapText="true" BorderPane.alignment="CENTER">
-            <BorderPane.margin>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </BorderPane.margin>
-        </TextArea>
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
+            <VBox fx:id="chatContainer" spacing="10">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+            </VBox>
+        </ScrollPane>
     </center>
 
     <bottom>
         <HBox spacing="10.0" BorderPane.alignment="CENTER">
             <BorderPane.margin>
-                <Insets bottom="10.0" left="10.0" right="10.0" />
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </BorderPane.margin>
 
-            <TextField fx:id="txtNuevoMensaje" promptText="Escribe un mensaje..." HBox.hgrow="ALWAYS" onAction="#enviarMensaje"/>
+            <TextField fx:id="txtNuevoMensaje" promptText="Escribe un mensaje..." HBox.hgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#enviarMensaje" text="Enviar" />
         </HBox>
     </bottom>

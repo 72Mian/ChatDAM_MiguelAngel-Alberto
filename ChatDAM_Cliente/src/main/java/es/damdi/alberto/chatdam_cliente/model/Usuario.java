@@ -1,4 +1,7 @@
 package es.damdi.alberto.chatdam_cliente.model;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Usuario {
     private Long id;

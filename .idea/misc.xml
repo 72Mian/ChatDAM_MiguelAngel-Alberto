@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/ChatDAM_Cliente" />
+    <file type="web" url="file://$PROJECT_DIR$/ChatDAM_Servidor" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_23" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />

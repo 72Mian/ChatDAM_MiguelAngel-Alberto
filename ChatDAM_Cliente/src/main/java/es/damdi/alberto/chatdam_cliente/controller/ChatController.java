@@ -6,27 +6,24 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu; // Importación nueva
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.stage.Modality;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality; // IMPORTANTE: Este es el que faltaba
 import javafx.stage.Stage;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -34,91 +31,56 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ChatController {
 
-    @FXML
-    private TextArea areaMensajes;
-    @FXML
-    private TextField txtNuevoMensaje;
-    @FXML
-    private Menu menuGestion; // Modificado: Inyectamos el menú completo, no solo el item
-    @FXML
-    private MenuItem menuAltaEmpleado;
+    @FXML private ScrollPane scrollPane;
+    @FXML private VBox chatContainer;
+    @FXML private TextField txtNuevoMensaje;
+    @FXML private Menu menuGestion;
 
-    private Usuario usuarioActual;
-    private StompSession stompSession;
+    private Usuario usuarioLogueado;
+    private org.springframework.messaging.simp.stomp.StompSession stompSession;
 
-    private static final String WS_URL = "ws://localhost:8080/ws-chat/websocket";
     private static final String HISTORIAL_URL = "http://localhost:8080/api/mensajes/historial";
+    private static final String WS_URL = "ws://localhost:8080/ws-chat/websocket";
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
-    public void setUsuarioLogueado(Usuario usuario) {
-        this.usuarioActual = usuario;
+    @FXML
+    public void initialize() {
+        txtNuevoMensaje.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) procesarEnvio();
+        });
 
-        // CONTROL DE ACCESO: Si no es administrador, ocultamos la pestaña entera de Gestión
-        if (usuario.getRol() == null || !usuario.getRol().equals("ADMINISTRADOR")) {
-            menuGestion.setVisible(false); // Desaparece el menú por completo de la barra
-        }
-
-        areaMensajes.appendText("¡Bienvenido al chat corporativo, " + usuario.getUsername() + "!\n");
-        cargarHistorial();
-        conectarWebSocket();
+        chatContainer.heightProperty().addListener((observable, oldValue, newValue) ->
+                scrollPane.setVvalue(1.0)
+        );
     }
 
-    @FXML
-    void abrirAltaEmpleado(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/AltaEmpleado.fxml"));
-            Stage modalStage = new Stage();
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle("Alta de Nuevo Empleado");
-            modalStage.setScene(new Scene(loader.load()));
-            modalStage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Error al cargar la ventana de Alta de Empleado.");
-            e.printStackTrace();
-        }
-    }
+    private HBox crearBurbuja(Mensaje msg) {
+        HBox contenedor = new HBox();
+        VBox burbuja = new VBox();
+        burbuja.setSpacing(2);
 
-    @FXML
-    void abrirBajaEmpleado(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/BajaEmpleado.fxml"));
-            Scene scene = new Scene(loader.load()); // Cargamos la vista
+        Label lblAutor = new Label(msg.getAutor() != null ? msg.getAutor().getUsername() : "Desconocido");
+        Label lblContenido = new Label(msg.getContenido());
+        lblContenido.setWrapText(true);
+        Label lblHora = new Label(msg.getHora() != null ? msg.getHora().toString().substring(0, 5) : "");
 
-            BajaEmpleadoController controller = loader.getController();
-            controller.cargarUsuarios(usuarioActual.getUsername());
+        burbuja.getChildren().addAll(lblAutor, lblContenido, lblHora);
+        contenedor.getChildren().add(burbuja);
 
-            Stage modalStage = new Stage();
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle("Baja de Empleado");
-            modalStage.setScene(scene);
-            modalStage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Error al cargar la ventana de Baja de Empleado.");
-            e.printStackTrace();
-        }
-    }
+        boolean esMio = esMio(msg);
+        contenedor.setAlignment(esMio ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
 
-    @FXML
-    void cerrarSesion(ActionEvent event) {
-        if (stompSession != null && stompSession.isConnected()) {
-            stompSession.disconnect();
-        }
+        burbuja.setStyle("-fx-padding: 10px; -fx-background-radius: 12px; " +
+                (esMio ? "-fx-background-color: #2188ff;" : "-fx-background-color: #2d333b;"));
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/Login.fxml"));
-            Scene scene = new Scene(loader.load());
-            Stage stage = (Stage) areaMensajes.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Inicio de Sesión - Chat Corporativo");
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            System.err.println("Error crítico al volver a la pantalla de Login.");
-            e.printStackTrace();
-        }
+        lblContenido.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        lblAutor.setStyle("-fx-text-fill: #adbac7; -fx-font-size: 10px; -fx-font-weight: bold;");
+        lblHora.setStyle("-fx-text-fill: #adbac7; -fx-font-size: 9px;");
+
+        return contenedor;
     }
 
     private void cargarHistorial() {
@@ -127,60 +89,45 @@ public class ChatController {
                 .thenAccept(response -> {
                     if (response.statusCode() == 200) {
                         try {
-                            ObjectMapper mapper = new ObjectMapper();
-                            mapper.registerModule(new JavaTimeModule());
-                            mapper.disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-                            List<Mensaje> historial = mapper.readValue(response.body(), new TypeReference<List<Mensaje>>() {});
-                            Collections.reverse(historial);
+                            ObjectMapper om = new ObjectMapper();
+                            om.registerModule(new JavaTimeModule());
+                            List<Mensaje> mensajes = om.readValue(response.body(), new TypeReference<List<Mensaje>>(){});
+                            mensajes.sort(java.util.Comparator.comparing(Mensaje::getFecha)
+                                    .thenComparing(Mensaje::getHora));
+
                             Platform.runLater(() -> {
-                                areaMensajes.appendText("--- Últimos mensajes ---\n");
-                                historial.forEach(this::mostrarMensajeEnPantalla);
-                                areaMensajes.appendText("------------------------\n");
+                                chatContainer.getChildren().clear();
+                                for(Mensaje m : mensajes) {
+                                    chatContainer.getChildren().add(crearBurbuja(m));
+                                }
+                                scrollPane.setVvalue(1.0);
                             });
-                        } catch (Exception e) { System.err.println("Error procesando historial: " + e.getMessage()); }
+                        } catch (Exception e) { e.printStackTrace(); }
                     }
                 });
     }
 
-    private void conectarWebSocket() {
-        WebSocketClient client = new StandardWebSocketClient();
-        WebSocketStompClient stompClient = new WebSocketStompClient(client);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(mapper);
-        stompClient.setMessageConverter(converter);
-
-        try {
-            stompSession = stompClient.connectAsync(WS_URL, new StompSessionHandlerAdapter() {
-                @Override
-                public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-                    session.subscribe("/topic/mensajes", new StompSessionHandlerAdapter() {
-                        @Override
-                        public Type getPayloadType(StompHeaders headers) { return Mensaje.class; }
-                        @Override
-                        public void handleFrame(StompHeaders headers, Object payload) { mostrarMensajeEnPantalla((Mensaje) payload); }
-                    });
-                }
-            }).get();
-        } catch (InterruptedException | ExecutionException e) { areaMensajes.appendText("Error: " + e.getMessage() + "\n"); }
+    private boolean esMio(Mensaje mensaje) {
+        return usuarioLogueado != null &&
+                mensaje.getAutor() != null &&
+                mensaje.getAutor().getUsername().equals(usuarioLogueado.getUsername());
     }
 
-    private void mostrarMensajeEnPantalla(Mensaje mensaje) {
-        Platform.runLater(() -> {
-            String horaStr = (mensaje.getHora() != null) ? mensaje.getHora().toString().substring(0, 5) : "00:00";
-            String autorStr = (mensaje.getAutor() != null) ? mensaje.getAutor().getUsername() : "Desconocido";
-            areaMensajes.appendText(String.format("[%s] %s: %s\n", horaStr, autorStr, mensaje.getContenido()));
-        });
+    public void setUsuarioLogueado(Usuario usuario) {
+        this.usuarioLogueado = usuario;
+        if (usuario.getRol() == null || !String.valueOf(usuario.getRol()).equals("ADMINISTRADOR")) {
+            menuGestion.setVisible(false);
+        }
+        cargarHistorial();
+        conectarWebSocket();
     }
 
-    @FXML
-    void enviarMensaje(ActionEvent event) {
+    @FXML public void enviarMensaje(ActionEvent event) { procesarEnvio(); }
+
+    private void procesarEnvio() {
         String texto = txtNuevoMensaje.getText();
-        if (!texto.isEmpty() && stompSession != null && stompSession.isConnected()) {
-            Mensaje nuevoMensaje = new Mensaje(texto, usuarioActual);
+        if (!texto.trim().isEmpty() && stompSession != null && stompSession.isConnected()) {
+            Mensaje nuevoMensaje = new Mensaje(texto, usuarioLogueado);
             nuevoMensaje.setFecha(java.time.LocalDate.now());
             nuevoMensaje.setHora(java.time.LocalTime.now());
             stompSession.send("/app/enviar-mensaje", nuevoMensaje);
@@ -189,9 +136,94 @@ public class ChatController {
     }
 
     @FXML
-    void salirApp(ActionEvent event) {
+    public void cerrarSesion(ActionEvent event) {
+        if (stompSession != null && stompSession.isConnected()) stompSession.disconnect();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/Login.fxml"));
+            Stage stage = (Stage) txtNuevoMensaje.getScene().getWindow();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Login");
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void salirApp(ActionEvent event) {
         if (stompSession != null && stompSession.isConnected()) stompSession.disconnect();
         Platform.exit();
         System.exit(0);
+    }
+
+    @FXML
+    void abrirAltaEmpleado(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/AltaEmpleado.fxml"));
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setScene(new Scene(loader.load()));
+            modalStage.showAndWait();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    void abrirBajaEmpleado(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/BajaEmpleado.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            // 1. Obtienes el controlador de la ventana que acabas de cargar
+            BajaEmpleadoController controller = loader.getController();
+
+            // 2. LLAMAS AL MÉTODO QUE ESTABA "SIN USO"
+            // Esto dispara la petición al servidor y llena el ComboBox
+            if (usuarioLogueado != null) {
+                controller.cargarUsuarios(usuarioLogueado.getUsername());
+            }
+
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle("Baja de Empleado");
+            modalStage.setScene(scene);
+            modalStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void conectarWebSocket() {
+        WebSocketClient client = new StandardWebSocketClient();
+        WebSocketStompClient stompClient = new WebSocketStompClient(client);
+
+        ObjectMapper om = new ObjectMapper();
+        om.registerModule(new JavaTimeModule());
+
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setObjectMapper(om);
+
+        stompClient.setMessageConverter(converter);
+
+        stompClient.connectAsync(WS_URL, new org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter() {
+            @Override
+            public void afterConnected(org.springframework.messaging.simp.stomp.StompSession session, org.springframework.messaging.simp.stomp.StompHeaders connectedHeaders) {
+                stompSession = session;
+                session.subscribe("/topic/mensajes", new org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter() {
+                    @Override
+                    public java.lang.reflect.Type getPayloadType(org.springframework.messaging.simp.stomp.StompHeaders headers) {
+                        return Mensaje.class;
+                    }
+
+                    @Override
+                    public void handleFrame(org.springframework.messaging.simp.stomp.StompHeaders headers, Object payload) {
+                        mostrarMensajeEnPantalla((Mensaje) payload);
+                    }
+                });
+            }
+        });
+    }
+
+    private void mostrarMensajeEnPantalla(Mensaje mensaje) {
+        Platform.runLater(() -> {
+            chatContainer.getChildren().add(crearBurbuja(mensaje));
+        });
     }
 }
