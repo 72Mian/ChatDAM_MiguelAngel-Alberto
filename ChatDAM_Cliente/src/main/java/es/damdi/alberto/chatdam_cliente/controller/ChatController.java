@@ -214,12 +214,18 @@ public class ChatController {
 
                     @Override
                     public void handleFrame(org.springframework.messaging.simp.stomp.StompHeaders headers, Object payload) {
-                        mostrarMensajeEnPantalla((Mensaje) payload);
+                        Mensaje msg = (Mensaje) payload;
+                        // AQUÍ ESTÁ LA CLAVE:
+                        Platform.runLater(() -> {
+                            chatContainer.getChildren().add(crearBurbuja(msg));
+                            scrollPane.setVvalue(1.0); // Scroll automático
+                        });
                     }
                 });
             }
         });
     }
+
 
     private void mostrarMensajeEnPantalla(Mensaje mensaje) {
         Platform.runLater(() -> {
