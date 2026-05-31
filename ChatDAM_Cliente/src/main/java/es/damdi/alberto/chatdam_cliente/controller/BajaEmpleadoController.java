@@ -1,5 +1,6 @@
 package es.damdi.alberto.chatdam_cliente.controller;
 
+import es.damdi.alberto.chatdam_cliente.AppConfig;
 import es.damdi.alberto.chatdam_cliente.model.Usuario;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -33,7 +34,7 @@ public class BajaEmpleadoController {
         this.usuarioLogueado = usernameActual;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://54.242.82.149:8080/api/auth/usuarios"))
+                .uri(URI.create(AppConfig.API_BASE_URL + "/auth/usuarios"))
                 .GET()
                 .build();
 
@@ -80,7 +81,7 @@ public class BajaEmpleadoController {
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://54.242.82.149:8080/api/auth/eliminar/" + username))
+                .uri(URI.create(AppConfig.API_BASE_URL + "/auth/eliminar/" + username))
                 .DELETE()
                 .build();
 

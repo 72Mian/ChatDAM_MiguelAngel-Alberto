@@ -1,5 +1,6 @@
 package es.damdi.alberto.chatdam_cliente.controller;
 
+import es.damdi.alberto.chatdam_cliente.AppConfig;
 import es.damdi.alberto.chatdam_cliente.model.Mensaje;
 import es.damdi.alberto.chatdam_cliente.model.Usuario;
 import javafx.application.Platform;
@@ -42,8 +43,8 @@ public class ChatController {
     private Usuario usuarioLogueado;
     private org.springframework.messaging.simp.stomp.StompSession stompSession;
 
-    private static final String HISTORIAL_URL = "http://54.242.82.149:8080/api/mensajes/historial";
-    private static final String WS_URL = "ws://54.242.82.149:8080/ws-chat/websocket";
+    private static final String HISTORIAL_URL = AppConfig.API_BASE_URL + "/mensajes/historial";
+    private static final String WS_URL = AppConfig.WS_BASE_URL + "/websocket";
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     @FXML
