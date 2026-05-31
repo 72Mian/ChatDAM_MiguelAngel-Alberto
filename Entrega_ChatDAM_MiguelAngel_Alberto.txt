@@ -1,0 +1,23 @@
+Entrega de Proyecto: Chat Corporativo (ChatDAM)
+Alumnos: Miguel Ángel y Alberto Martínez Cánovas
+Módulo: Programación (DAM)
+
+🔗 Repositorio GitHub: https://github.com/72Mian/ChatDAM_MiguelAngel-Alberto
+
+⚙️ Instrucciones de Ejecución
+Dado que usted tiene acceso a nuestra infraestructura como profesor del laboratorio de AWS, le informamos de que el backend (Spring Boot) y la base de datos (RDS) están desplegados en nuestra instancia de la nube.
+
+Para evaluar la aplicación cliente (JavaFX):
+
+Si la máquina de AWS ha sido reiniciada y su IP pública ha cambiado, por favor, actualice la variable SERVER_IP dentro del archivo src/main/java/es/damdi/alberto/chatdam_cliente/AppConfig.java.
+
+Ejecute el proyecto cliente. Toda la configuración de endpoints HTTP y WebSockets se ajustará automáticamente a esa IP.
+
+📌 Resumen de Arquitectura y Tecnologías
+Para este proyecto hemos apostado por simular un entorno corporativo real con las siguientes características técnicas:
+
+Arquitectura 100% Cloud: Separación total entre el cliente pesado (JavaFX) y los servicios de backend/persistencia alojados en Amazon Web Services.
+
+Tiempo Real (WebSockets): Implementación del protocolo STOMP para la mensajería. Los envíos se persisten en base de datos y se retransmiten instantáneamente por el canal suscrito a todos los clientes, sin necesidad de hacer Long Polling.
+
+Gestión Dinámica de Roles: El frontend adapta su interfaz (ocultando menús de administración) según el objeto Usuario devuelto en el Login. Los Administradores pueden consumir endpoints REST (GET, POST, DELETE) para gestionar la plantilla en tiempo real.

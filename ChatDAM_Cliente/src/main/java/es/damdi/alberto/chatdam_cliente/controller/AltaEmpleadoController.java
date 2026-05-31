@@ -25,9 +25,8 @@ public class AltaEmpleadoController {
 
     @FXML
     public void initialize() {
-        // Rellenamos el desplegable con los roles válidos definidos en el servidor
         cmbRol.setItems(FXCollections.observableArrayList("EMPLEADO", "ADMINISTRADOR"));
-        cmbRol.setValue("EMPLEADO"); // Valor por defecto
+        cmbRol.setValue("EMPLEADO");
     }
 
     @FXML
@@ -42,7 +41,6 @@ public class AltaEmpleadoController {
             return;
         }
 
-        // Incluimos el rol dinámicamente en el JSON
         String jsonBody = String.format("{\"username\":\"%s\", \"password\":\"%s\", \"rol\":\"%s\"}", username, password, rol);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -59,7 +57,7 @@ public class AltaEmpleadoController {
                             lblMensaje.setText("Usuario " + rol.toLowerCase() + " registrado con éxito");
                             txtNuevoUsuario.clear();
                             txtNuevaPassword.clear();
-                            cmbRol.setValue("EMPLEADO"); // Reiniciamos el desplegable
+                            cmbRol.setValue("EMPLEADO");
                         });
                     } else {
                         Platform.runLater(() -> {

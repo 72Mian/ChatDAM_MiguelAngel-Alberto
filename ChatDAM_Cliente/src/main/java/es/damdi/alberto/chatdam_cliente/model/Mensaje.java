@@ -10,7 +10,6 @@ public class Mensaje {
     private LocalTime hora;
     private Usuario autor;
 
-    // Constructores
     public Mensaje() {}
 
     public Mensaje(String contenido, Usuario autor) {
@@ -18,7 +17,6 @@ public class Mensaje {
         this.autor = autor;
     }
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getContenido() { return contenido; }

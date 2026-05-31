@@ -27,9 +27,8 @@ public class BajaEmpleadoController {
     private final ObjectMapper mapper = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    private String usuarioLogueado; // Aquí guardaremos tu nombre
+    private String usuarioLogueado;
 
-    // Este método lo llama el ChatController antes de mostrar la ventana
     public void cargarUsuarios(String usernameActual) {
         this.usuarioLogueado = usernameActual;
 
@@ -44,10 +43,9 @@ public class BajaEmpleadoController {
                         try {
                             List<Usuario> listaUsuarios = mapper.readValue(response.body(), new TypeReference<List<Usuario>>() {});
 
-                            // Extraemos los nombres y FILTRAMOS el nuestro
                             List<String> nombres = listaUsuarios.stream()
                                     .map(Usuario::getUsername)
-                                    .filter(nombre -> !nombre.equals(this.usuarioLogueado)) // ¡AQUÍ ESTÁ LA MAGIA!
+                                    .filter(nombre -> !nombre.equals(this.usuarioLogueado))
                                     .collect(Collectors.toList());
 
                             Platform.runLater(() -> {
@@ -91,7 +89,7 @@ public class BajaEmpleadoController {
                         if (response.statusCode() == 200) {
                             lblMensaje.setStyle("-fx-text-fill: green;");
                             lblMensaje.setText("Usuario eliminado con éxito.");
-                            cmbUsuarios.getItems().remove(username); // Lo quitamos de la lista
+                            cmbUsuarios.getItems().remove(username);
                             cmbUsuarios.setValue(null);
                         } else {
                             lblMensaje.setStyle("-fx-text-fill: red;");

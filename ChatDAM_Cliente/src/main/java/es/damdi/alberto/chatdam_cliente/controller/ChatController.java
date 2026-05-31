@@ -7,14 +7,13 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality; // IMPORTANTE: Este es el que faltaba
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +29,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
 public class ChatController {
@@ -172,11 +170,8 @@ public class ChatController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/BajaEmpleado.fxml"));
             Scene scene = new Scene(loader.load());
 
-            // 1. Obtienes el controlador de la ventana que acabas de cargar
             BajaEmpleadoController controller = loader.getController();
 
-            // 2. LLAMAS AL MÉTODO QUE ESTABA "SIN USO"
-            // Esto dispara la petición al servidor y llena el ComboBox
             if (usuarioLogueado != null) {
                 controller.cargarUsuarios(usuarioLogueado.getUsername());
             }
@@ -216,10 +211,9 @@ public class ChatController {
                     @Override
                     public void handleFrame(org.springframework.messaging.simp.stomp.StompHeaders headers, Object payload) {
                         Mensaje msg = (Mensaje) payload;
-                        // AQUÍ ESTÁ LA CLAVE:
                         Platform.runLater(() -> {
                             chatContainer.getChildren().add(crearBurbuja(msg));
-                            scrollPane.setVvalue(1.0); // Scroll automático
+                            scrollPane.setVvalue(1.0);
                         });
                     }
                 });
@@ -229,8 +223,6 @@ public class ChatController {
 
 
     private void mostrarMensajeEnPantalla(Mensaje mensaje) {
-        Platform.runLater(() -> {
-            chatContainer.getChildren().add(crearBurbuja(mensaje));
-        });
+        Platform.runLater(() -> chatContainer.getChildren().add(crearBurbuja(mensaje)));
     }
 }

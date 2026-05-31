@@ -46,18 +46,15 @@ public class LoginController {
             return;
         }
 
-        // Convertimos los datos a JSON usando la clase LoginRequest
         LoginRequest requestBody = new LoginRequest(username, password);
         String jsonBody = gson.toJson(requestBody);
 
-        // Preparamos la petición al servidor Spring Boot
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SERVER_URL))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
-        // Enviamos la petición de forma asíncrona para no congelar la interfaz
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenAccept(response -> Platform.runLater(() -> procesarRespuesta(response)))
                 .exceptionally(e -> {
@@ -68,9 +65,7 @@ public class LoginController {
 
     private void procesarRespuesta(HttpResponse<String> response) {
         if (response.statusCode() == 200) {
-            // Mapeamos el JSON del servidor a nuestro objeto Usuario
             Usuario usuarioLogueado = gson.fromJson(response.body(), Usuario.class);
-            // Ejecutamos el cambio de pantalla
             abrirVentanaChat(usuarioLogueado);
         } else {
             mostrarAlerta("Acceso Denegado", "Credenciales incorrectas. Vuelve a intentarlo.");
@@ -82,15 +77,13 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/es/damdi/alberto/chatdam_cliente/Chat.fxml"));
             Scene scene = new Scene(loader.load());
 
-            // Le pasamos el usuario al nuevo controlador
             ChatController chatController = loader.getController();
             chatController.setUsuarioLogueado(usuario);
 
-            // Obtenemos la ventana actual y le cambiamos la escena
             Stage stage = (Stage) txtUsuario.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Chat Corporativo - " + usuario.getUsername());
-            stage.setResizable(true); // El chat sí se puede redimensionar
+            stage.setResizable(true);
             stage.centerOnScreen();
 
         } catch (IOException e) {
